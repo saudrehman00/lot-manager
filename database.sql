@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 26, 2022 at 06:48 PM
+-- Generation Time: Nov 26, 2022 at 07:11 PM
 -- Server version: 10.5.16-MariaDB
 -- PHP Version: 8.1.12
 
@@ -45,6 +45,7 @@ CREATE TABLE `parkinglot` (
 
 CREATE TABLE `rates` (
   `id` int(11) NOT NULL,
+  `lotid` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `rate` decimal(10,0) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -76,6 +77,12 @@ ALTER TABLE `parkinglot`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `rates`
+--
+ALTER TABLE `rates`
+  ADD KEY `lotid` (`lotid`);
+
+--
 -- Indexes for table `userticket`
 --
 ALTER TABLE `userticket`
@@ -101,6 +108,12 @@ ALTER TABLE `userticket`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `rates`
+--
+ALTER TABLE `rates`
+  ADD CONSTRAINT `rates_ibfk_1` FOREIGN KEY (`lotid`) REFERENCES `parkinglot` (`id`);
 
 --
 -- Constraints for table `userticket`
