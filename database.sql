@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 26, 2022 at 07:11 PM
+-- Generation Time: Nov 26, 2022 at 11:17 PM
 -- Server version: 10.5.16-MariaDB
 -- PHP Version: 8.1.12
 
@@ -37,6 +37,13 @@ CREATE TABLE `parkinglot` (
   `numspaces` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Dumping data for table `parkinglot`
+--
+
+INSERT INTO `parkinglot` (`id`, `name`, `numfloors`, `numspaces`) VALUES
+(1, 'my test lot', 3, 15);
+
 -- --------------------------------------------------------
 
 --
@@ -46,8 +53,10 @@ CREATE TABLE `parkinglot` (
 CREATE TABLE `rates` (
   `id` int(11) NOT NULL,
   `lotid` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `rate` decimal(10,0) NOT NULL
+  `rate` decimal(10,2) NOT NULL,
+  `overtimerate` decimal(10,2) NOT NULL,
+  `effective` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expirydate` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -67,6 +76,13 @@ CREATE TABLE `userticket` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
+-- Dumping data for table `userticket`
+--
+
+INSERT INTO `userticket` (`id`, `lotid`, `floor`, `spacenumber`, `validitystart`, `paidtime`, `validityEnd`) VALUES
+(1, 1, 'a', 2, '2022-11-26 23:05:26', '11:00:00', '2022-11-26 23:05:14');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -80,6 +96,7 @@ ALTER TABLE `parkinglot`
 -- Indexes for table `rates`
 --
 ALTER TABLE `rates`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `lotid` (`lotid`);
 
 --
@@ -97,13 +114,19 @@ ALTER TABLE `userticket`
 -- AUTO_INCREMENT for table `parkinglot`
 --
 ALTER TABLE `parkinglot`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `rates`
+--
+ALTER TABLE `rates`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `userticket`
 --
 ALTER TABLE `userticket`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
