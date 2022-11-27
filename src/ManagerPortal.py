@@ -20,26 +20,52 @@ class ManagerPortal:
 
     def updateLotList(self):
         sql = " \
-SELECT \
-    parkinglot.id, \
-    name, \
-    numfloors * numspaces totalspaces, \
-    ( \
-    SELECT \
-        COUNT(*) \
-    FROM \
-        userticket \
-    WHERE \
-        userticket.validityEnd IS NULL AND userticket.lotid = parkinglot.id \
-) occupiedspots, \
-rates.rate, \
-rates.overtimerate \
-FROM \
-    parkinglot \
-JOIN rates WHERE parkinglot.id = rates.lotid AND rates.expirydate IS NULL"
+SELECT parkinglot.id, \
+       parkinglot.name, \
+       parkinglot.numfloors * parkinglot.numspaces \
+       totalspaces, \
+       (SELECT Count(*) \
+        FROM   userticket \
+        WHERE  userticket.validityend IS NULL \
+               AND userticket.lotid = parkinglot.id) \
+       occupiedspots, \
+       r2.rate, \
+       r2.overtimerate, \
+       SUM(( Time_to_sec(userticket.paidtime) / 3600 ) * r1.rate + \
+               IF( \
+               Timestampdiff(second, userticket.validitystart, IF( \
+               userticket.validityend IS NULL, Now(), userticket.validityend)) > \
+               Time_to_sec(userticket.paidtime), \
+               Timestampdiff(second, \
+               userticket.validitystart, IF( \
+               userticket.validityend IS NULL, Now(), \
+               userticket.validityend)) / 3600 * \
+               r1.overtimerate, 0)) revenuegenerated \
+FROM   userticket \
+       join parkinglot \
+         ON userticket.lotid = parkinglot.id \
+       join rates r1 \
+         ON userticket.lotid = r1.lotid \
+            AND userticket.validitystart BETWEEN \
+                r1.effective AND IF( \
+                r1.expirydate IS NULL, Now( \
+                                 ), r1.expirydate) \
+       join rates r2 \
+         ON parkinglot.id = r2.lotid \
+            AND r2.expirydate IS NULL \
+WHERE userticket.validitystart > DATE_SUB(NOW(), INTERVAL 1 MONTH) \
+GROUP  BY parkinglot.id, \
+          parkinglot.name, \
+          parkinglot.numfloors * parkinglot.numspaces, \
+          (SELECT Count(*) \
+           FROM   userticket \
+           WHERE  userticket.validityend IS NULL \
+                  AND userticket.lotid = parkinglot.id), \
+          r2.rate, \
+          r2.overtimerate"
         result = self.connection.execute(sql)
         for lot in self.connection.fetchall():
-            self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'])
+            self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'],lot['revenuegenerated'])
 
     def setRate(self, name,rate):
         lotid = self.parkingLots[name].getlotID()
@@ -78,6 +104,10 @@ JOIN rates WHERE parkinglot.id = rates.lotid AND rates.expirydate IS NULL"
     def getOvertimeRate(self,name):
         self.updateLotList()
         return self.parkingLots[name].getOvertimeRate()
+
+    def getRevenueGenerated(self,name):
+        self.updateLotList()
+        return self.parkingLots[name].getPastMonthRevenue()
 
     def getLots(self):
         self.updateLotList()

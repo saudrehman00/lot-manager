@@ -17,7 +17,7 @@ def rateValidation(answers,current):
 
 load_dotenv()
 lotManager = ManagerPortal(os.environ['dbhost'],os.environ['dbname'],os.environ['dbuser'],os.environ['dbpswd'])
-choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Usages","View Lot Rates","Update Rates","Quit"])
+choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 while choice != "Quit":
     match choice:
         case "Create New Lot":
@@ -39,10 +39,17 @@ while choice != "Quit":
 
         case "View Lot Rates":
             lotRateQuestions = [
-                Checkbox(name="lotnames",message="Which lots would you like to view the usage for",choices=lotManager.getLots())
+                Checkbox(name="lotnames",message="Which lots would you like to view the rates for",choices=lotManager.getLots())
             ]
             for lot in prompt(lotRateQuestions)['lotnames']:
                 print(f"{lot}: {lotManager.getRate(lot)} {lotManager.getOvertimeRate(lot)}")
+        case "View Lot Past Month Revenue":
+            lotRateQuestions = [
+                Checkbox(name="lotnames",message="Which lots would you like to view the rates for",choices=lotManager.getLots())
+            ]
+            for lot in prompt(lotRateQuestions)['lotnames']:
+                print(f"{lot}: {lotManager.getRevenueGenerated(lot)}")
+        
         case "Update Rates":
             if len(lotManager.getLots()):
                 updateRateQuestions = [
@@ -67,7 +74,7 @@ while choice != "Quit":
             print("Something Went wrong in the application")
             sys.exit(1)
 
-    choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Rates","View Lot Usage","Update Rates","Quit"])
+    choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 
 
 print("Have a nice day!")
