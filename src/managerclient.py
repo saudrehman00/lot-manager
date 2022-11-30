@@ -2,7 +2,8 @@
 
 import sys
 import os
-from inquirer import list_input,prompt,Text,Checkbox,List
+from dotenv import load_dotenv
+from inquirer import list_input,prompt,Text,Checkbox,List,Password
 from ManagerPortal import *
 
 def newLotFloorValidation(answers,current):
@@ -16,10 +17,24 @@ def rateValidation(answers,current):
     return current.replace('.','',1).isdigit()
 
 load_dotenv()
-lotManager = ManagerPortal(os.environ['dbhost'],os.environ['dbname'],os.environ['dbuser'],os.environ['dbpswd'])
-choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
+
+loginQuestions = [
+    Text(name="username",message="Username"),
+    Password(name="password",message="Password")
+]
+loginData = prompt(loginQuestions)
+lotManager = ManagerPortal(os.environ['dbhost'],os.environ['dbuser'],os.environ['dbpswd'],loginData['username'],loginData['password'])
+choice = list_input("What would you like to do:",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 while choice != "Quit":
     match choice:
+        case "Create New Manager":
+            newManagerQuestions = [
+                Text(name="fullname",message="What is the name of the new manager"),
+                Text(name="username",message="What is the username of the new manager"),
+                Password(name="password",message="What is the password for the new manager"),
+            ]
+            newManagerData = prompt(newManagerQuestions)
+            lotManager.createNewManager(newManagerData['fullname'],newManagerData['username'],newManagerData['password'])
         case "Create New Lot":
             newLotQuestions = [
                 Text(name="lotname", message="What would you like to call this parking lot:"),
@@ -74,7 +89,7 @@ while choice != "Quit":
             print("Something Went wrong in the application")
             sys.exit(1)
 
-    choice = list_input("What would you like to do:",choices = ["Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
+    choice = list_input("What would you like to do:",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 
 
 print("Have a nice day!")

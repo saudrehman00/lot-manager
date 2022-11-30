@@ -1,6 +1,7 @@
-from dotenv import load_dotenv
+from hashlib import sha256
 import MySQLdb
 import os
+import sys
 from ManagerParkingLot import *
 
 class ManagerPortal:
@@ -8,9 +9,23 @@ class ManagerPortal:
     connection = None
     parkingLots = dict()
 
-    def __init__(self, dbhost, dbname, dbuser, dbpswd):
-        self.db = MySQLdb.connect(host=dbhost,db=dbname,user=dbuser, passwd=dbpswd )
+    def __init__(self, dbhost,  dbuser, dbpswd,manageruname,managerpswd):
+        self.db = MySQLdb.connect(host=dbhost,user=dbuser, passwd=dbpswd )
         self.connection = self.db.cursor(MySQLdb.cursors.DictCursor)
+        self.connection.execute("SHOW DATABASES;")
+        result = self.connection.fetchall()
+        if "lotmanager" in [database['Database'] for database in result]:
+            self.connection.execute("USE lotmanager;")
+            self.connection.execute(f"SELECT fullname, password from manager WHERE username LIKE '{manageruname}'")
+            result = self.connection.fetchone()
+            if result['password'] == sha256(managerpswd.encode()).hexdigest():
+                print(f"HELLO {result['fullname']}")
+            else:
+                print("login failed")
+                sys.exit(1)
+        else:
+            sql = ""
+
 
     def __del__(self):
         if self.connection:
@@ -119,3 +134,15 @@ GROUP  BY parkinglot.id, \
         setratesql = f"INSERT INTO rates (lotid, rate, overtimerate) VALUES ('{self.connection.lastrowid}','{standardrate}','{overtimerate}')"
         self.connection.execute(setratesql)
         self.db.commit()
+
+    def createNewManager(self,fullname,username,password):
+        uniquemanagersql = f"SELECT * FROM manager WHERE username like '{username}'"
+        self.connection.execute(uniquemanagersql)
+        if self.connection.fetchall():
+            print("Username is not unique. Please pick a different username")
+            return
+        createmanagersql = f"INSERT INTO manager (fullname, username, password) VALUES ('{fullname}', '{username}', '{sha256(password.encode()).hexdigest()}')"
+        self.connection.execute(createmanagersql)
+        self.db.commit()
+
+    
