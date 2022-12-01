@@ -82,7 +82,6 @@ GROUP  BY parkinglot.id, \
         result = self.connection.execute(sql)
         for lot in self.connection.fetchall():
             self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'],lot['revenuegenerated'])
-        print(self.parkingLots)
 
     def setRate(self, name,rate):
         lotid = self.parkingLots[name].getlotID()
