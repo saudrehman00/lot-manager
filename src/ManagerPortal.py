@@ -24,7 +24,8 @@ class ManagerPortal:
                 print("login failed")
                 sys.exit(1)
         else:
-            sql = ""
+            print("database has not been set up")
+            sys.exit(1)
 
 
     def __del__(self):
@@ -81,6 +82,7 @@ GROUP  BY parkinglot.id, \
         result = self.connection.execute(sql)
         for lot in self.connection.fetchall():
             self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'],lot['revenuegenerated'])
+        print(self.parkingLots)
 
     def setRate(self, name,rate):
         lotid = self.parkingLots[name].getlotID()
