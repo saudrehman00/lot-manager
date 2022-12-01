@@ -95,7 +95,6 @@ GROUP  BY parkinglot.id, \
         result = self.connection.execute(lotSQL)
         for lot in self.connection.fetchall():
             self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'],0)
-            print(lot)
         result = self.connection.execute(sqlBilling)
         for lot in self.connection.fetchall():
             self.parkingLots[lot['name']] = ManagerParkingLot(lot['id'],lot['name'],lot['occupiedspots'],lot['totalspaces'],lot['rate'],lot['overtimerate'],lot['revenuegenerated'])
