@@ -24,7 +24,7 @@ loginQuestions = [
 ]
 loginData = prompt(loginQuestions)
 lotManager = ManagerPortal(os.environ['dbhost'],os.environ['dbuser'],os.environ['dbpswd'],loginData['username'],loginData['password'])
-choice = list_input("What would you like to do:",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
+choice = list_input("What would you like to do",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 while choice != "Quit":
     match choice:
         case "Create New Manager":
@@ -37,7 +37,7 @@ while choice != "Quit":
             lotManager.createNewManager(newManagerData['fullname'],newManagerData['username'],newManagerData['password'])
         case "Create New Lot":
             newLotQuestions = [
-                Text(name="lotname", message="What would you like to call this parking lot:"),
+                Text(name="lotname", message="What would you like to call this parking lot"),
                 Text(name="parkingfloors",message="How many floors does your parking lot have",validate=newLotFloorValidation),
                 Text(name="parkingspaces",message="How many spaces are there on each floor of your parking lot",validate=newLotSpaceValidation),
                 Text(name="rate",message="What is the standard rate",validate=rateValidation),
@@ -89,7 +89,7 @@ while choice != "Quit":
             print("Something Went wrong in the application")
             sys.exit(1)
 
-    choice = list_input("What would you like to do:",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
+    choice = list_input("What would you like to do",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 
 
 print("Have a nice day!")
