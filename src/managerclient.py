@@ -38,95 +38,94 @@ lotManager = ManagerPortal(os.environ['dbhost'], os.environ['dbuser'],
 choice = list_input("What would you like to do", choices=[
                     "Create New Manager", "Create New Lot", "View Lot Usages", "View Lot Rates", "View Lot Past Month Revenue", "Update Rates", "Quit"])
 while choice != "Quit":
-    match choice:
-        # handle manager choice create new manager
-        case "Create New Manager":
-            newManagerQuestions = [
-                Text(name="fullname", message="What is the name of the new manager"),
-                Text(name="username",
-                     message="What is the username of the new manager"),
-                Password(name="password",
-                         message="What is the password for the new manager"),
-            ]
-            newManagerData = prompt(newManagerQuestions)
-            lotManager.createNewManager(
-                newManagerData['fullname'], newManagerData['username'], newManagerData['password'])
-        # handle manager choice create new lot
-        case "Create New Lot":
-            newLotQuestions = [
-                Text(name="lotname",
-                     message="What would you like to call this parking lot"),
-                Text(name="parkingfloors", message="How many floors does your parking lot have",
-                     validate=newLotFloorValidation),
-                Text(name="parkingspaces", message="How many spaces are there on each floor of your parking lot",
-                     validate=newLotSpaceValidation),
+    # handle manager choice create new manager
+    if choice == "Create New Manager":
+        newManagerQuestions = [
+            Text(name="fullname", message="What is the name of the new manager"),
+            Text(name="username",
+                    message="What is the username of the new manager"),
+            Password(name="password",
+                        message="What is the password for the new manager"),
+        ]
+        newManagerData = prompt(newManagerQuestions)
+        lotManager.createNewManager(
+            newManagerData['fullname'], newManagerData['username'], newManagerData['password'])
+    # handle manager choice create new lot
+    elif choice ==  "Create New Lot":
+        newLotQuestions = [
+            Text(name="lotname",
+                    message="What would you like to call this parking lot"),
+            Text(name="parkingfloors", message="How many floors does your parking lot have",
+                    validate=newLotFloorValidation),
+            Text(name="parkingspaces", message="How many spaces are there on each floor of your parking lot",
+                    validate=newLotSpaceValidation),
+            Text(name="rate", message="What is the standard rate",
+                    validate=rateValidation),
+            Text(name="overtimerate", message="What is the overtime rate",
+                    validate=rateValidation)
+        ]
+        newlotdata = prompt(newLotQuestions)
+        lotManager.createNewLot(newlotdata['lotname'], newlotdata['parkingfloors'],
+                                newlotdata['parkingspaces'], newlotdata['rate'], newlotdata['overtimerate'])
+    # handle manager choice view lot usages
+    elif choice == "View Lot Usages":
+        lotUsageQuestions = [
+            Checkbox(name="lotnames", message="Which lots would you like to view the usage for",
+                        choices=lotManager.getLots())
+        ]
+        for lot in prompt(lotUsageQuestions)['lotnames']:
+            print(f"{lot}: {lotManager.getOccupancy(lot)}%")
+
+    # handle manager choice view lot rate
+    elif choice == "View Lot Rates":
+        lotRateQuestions = [
+            Checkbox(name="lotnames", message="Which lots would you like to view the rates for",
+                        choices=lotManager.getLots())
+        ]
+        for lot in prompt(lotRateQuestions)['lotnames']:
+            print(
+                f"{lot}: {lotManager.getRate(lot)} {lotManager.getOvertimeRate(lot)}")
+    
+    # handle manager choice view lot past month revenue
+    elif choice == "View Lot Past Month Revenue":
+        lotRateQuestions = [
+            Checkbox(name="lotnames", message="Which lots would you like to view the rates for",
+                        choices=lotManager.getLots())
+        ]
+        for lot in prompt(lotRateQuestions)['lotnames']:
+            print(f"{lot}: {lotManager.getRevenueGenerated(lot)}")
+
+    # handle manager choice udpate rates
+    elif choice == "Update Rates":
+        if len(lotManager.getLots()):
+            updateRateQuestions = [
+                List(name="lotname", message="Which lot would you like to update rates for",
+                        choices=lotManager.getLots()),
+                Checkbox(name="ratetype", message="Which rate would you like to update", choices=[
+                            "Overtime", "Standard"]),
                 Text(name="rate", message="What is the standard rate",
-                     validate=rateValidation),
+                        validate=rateValidation, ignore=lambda x: "Standard" not in x['ratetype']),
                 Text(name="overtimerate", message="What is the overtime rate",
-                     validate=rateValidation)
+                        validate=rateValidation, ignore=lambda x: "Overtime" not in x['ratetype'])
             ]
-            newlotdata = prompt(newLotQuestions)
-            lotManager.createNewLot(newlotdata['lotname'], newlotdata['parkingfloors'],
-                                    newlotdata['parkingspaces'], newlotdata['rate'], newlotdata['overtimerate'])
-        # handle manager choice view lot usages
-        case "View Lot Usages":
-            lotUsageQuestions = [
-                Checkbox(name="lotnames", message="Which lots would you like to view the usage for",
-                         choices=lotManager.getLots())
-            ]
-            for lot in prompt(lotUsageQuestions)['lotnames']:
-                print(f"{lot}: {lotManager.getOccupancy(lot)}%")
-
-        # handle manager choice view lot rate
-        case "View Lot Rates":
-            lotRateQuestions = [
-                Checkbox(name="lotnames", message="Which lots would you like to view the rates for",
-                         choices=lotManager.getLots())
-            ]
-            for lot in prompt(lotRateQuestions)['lotnames']:
-                print(
-                    f"{lot}: {lotManager.getRate(lot)} {lotManager.getOvertimeRate(lot)}")
-        
-        # handle manager choice view lot past month revenue
-        case "View Lot Past Month Revenue":
-            lotRateQuestions = [
-                Checkbox(name="lotnames", message="Which lots would you like to view the rates for",
-                         choices=lotManager.getLots())
-            ]
-            for lot in prompt(lotRateQuestions)['lotnames']:
-                print(f"{lot}: {lotManager.getRevenueGenerated(lot)}")
-
-        # handle manager choice udpate rates
-        case "Update Rates":
-            if len(lotManager.getLots()):
-                updateRateQuestions = [
-                    List(name="lotname", message="Which lot would you like to update rates for",
-                         choices=lotManager.getLots()),
-                    Checkbox(name="ratetype", message="Which rate would you like to update", choices=[
-                             "Overtime", "Standard"]),
-                    Text(name="rate", message="What is the standard rate",
-                         validate=rateValidation, ignore=lambda x: "Standard" not in x['ratetype']),
-                    Text(name="overtimerate", message="What is the overtime rate",
-                         validate=rateValidation, ignore=lambda x: "Overtime" not in x['ratetype'])
-                ]
-                updateratedata = prompt(updateRateQuestions)
-                if len(updateratedata['ratetype']) == 1:
-                    if "Standard" in updateratedata['ratetype']:
-                        lotManager.setRate(
-                            updateratedata['lotname'], updateratedata['rate'])
-                    if "Overtime" in updateratedata['ratetype']:
-                        lotManager.setOvertimeRate(
-                            updateratedata['lotname'], updateratedata['overtimerate'])
-                elif len(updateratedata['ratetype']) == 2:
-                    lotManager.setBothRate(
-                        updateratedata['lotname'], updateratedata['rate'], updateratedata['overtimerate'])
-                else:
-                    pass
+            updateratedata = prompt(updateRateQuestions)
+            if len(updateratedata['ratetype']) == 1:
+                if "Standard" in updateratedata['ratetype']:
+                    lotManager.setRate(
+                        updateratedata['lotname'], updateratedata['rate'])
+                if "Overtime" in updateratedata['ratetype']:
+                    lotManager.setOvertimeRate(
+                        updateratedata['lotname'], updateratedata['overtimerate'])
+            elif len(updateratedata['ratetype']) == 2:
+                lotManager.setBothRate(
+                    updateratedata['lotname'], updateratedata['rate'], updateratedata['overtimerate'])
             else:
-                print("You need to first create a lot to update rates")
-        case _:
-            print("Something Went wrong in the application")
-            sys.exit(1)
+                pass
+        else:
+            print("You need to first create a lot to update rates")
+    else:
+        print("Something Went wrong in the application")
+        sys.exit(1)
 
     choice = list_input("What would you like to do", choices=[
                         "Create New Manager", "Create New Lot", "View Lot Usages", "View Lot Rates", "View Lot Past Month Revenue", "Update Rates", "Quit"])

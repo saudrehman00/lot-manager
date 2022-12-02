@@ -1,9 +1,8 @@
 # lot-manager
 
-packages to install:
-    pip install inquirer
-    pip install python-dotenv
-    pip install mysqlclient
+## Connect to VM
+ssh azureuser@172.174.77.42 -i \<pathtopem>
+pem file is in the outer directory
 
 ## Manager Terminal
 To run the manager application run managerclient.py.
