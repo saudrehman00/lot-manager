@@ -31,6 +31,7 @@ loginQuestions = [
     Password(name="password", message="Password")
 ]
 loginData = prompt(loginQuestions)
+
 lotManager = ManagerPortal(os.environ['dbhost'], os.environ['dbuser'],
                            os.environ['dbpswd'], loginData['username'], loginData['password'])
 
