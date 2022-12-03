@@ -23,6 +23,7 @@ loginQuestions = [
     Password(name="password",message="Password")
 ]
 loginData = prompt(loginQuestions)
+print(os.environ['dbhost'])
 lotManager = ManagerPortal(os.environ['dbhost'],os.environ['dbuser'],os.environ['dbpswd'],loginData['username'],loginData['password'])
 choice = list_input("What would you like to do:",choices = ["Create New Manager","Create New Lot","View Lot Usages","View Lot Rates","View Lot Past Month Revenue","Update Rates","Quit"])
 while choice != "Quit":
